@@ -11,7 +11,7 @@ Fast Chrome extension tab filtering and search using BlobHeart
 1. Python3
 2. `pip3 install -r backend/requirements.txt`
 
-## Get Start
+## Get Started
 
 ### Extension
 1. `npm run build-dev`
