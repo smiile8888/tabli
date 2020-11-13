@@ -70,6 +70,8 @@ function loadManagedWindows(
         }
     }
 
+    log.info('folderTabWindows', folderTabWindows);
+
     return winStore.registerTabWindows(folderTabWindows);
 }
 /*
@@ -752,7 +754,7 @@ const defaultMatchInfoProps: MatchInfoProps = {
     bestMatch: null,
     tabCount: 0,
 };
-class MatchInfo extends Immutable.Record(defaultMatchInfoProps) {}
+class MatchInfo extends Immutable.Record(defaultMatchInfoProps) { }
 
 const getWindowMatchInfo = (
     bmStore: TabManagerState,

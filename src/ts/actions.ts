@@ -62,6 +62,7 @@ export const syncChromeWindows = async (
 ): Promise<TabManagerState> => {
     var tPreGet = performance.now();
     const windowList = await chromep.windows.getAll({ populate: true });
+    log.info(windowList);
     var tPostGet = performance.now();
     log.info(
         'syncChromeWindows: chrome.windows.getAll took ',
@@ -72,6 +73,7 @@ export const syncChromeWindows = async (
     const nextSt = await awaitableUpdate_(storeRef, (state) =>
         state.syncWindowList(windowList)
     );
+    log.info("nextSt", nextSt);
     var tPostSync = performance.now();
     log.info(
         'syncChromeWindows: syncWindowList took ',
@@ -835,12 +837,12 @@ export const oldMoveTabItem = async (
             const srcTabWindow = st.getSavedWindowByTabBookmarkId(bookmarkId);
             const updSt = srcTabWindow
                 ? st.handleSavedTabMoved(
-                      srcTabWindow,
-                      targetTabWindow,
-                      movedTabItem,
-                      chromeTab!,
-                      bmNode
-                  )
+                    srcTabWindow,
+                    targetTabWindow,
+                    movedTabItem,
+                    chromeTab!,
+                    bmNode
+                )
                 : st;
             return updSt;
         });

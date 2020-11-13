@@ -23,7 +23,7 @@ const defaultSavedTabStateProps: SavedTabStateProps = {
  */
 export class SavedTabState extends Immutable.Record(
     defaultSavedTabStateProps
-) {}
+) { }
 
 export interface OpenTabStateProps {
     url: string;
@@ -58,7 +58,7 @@ const defaultOpenTabStateProps: OpenTabStateProps = {
 /*
  * Tab state associated with an open browser tab
  */
-export class OpenTabState extends Immutable.Record(defaultOpenTabStateProps) {}
+export class OpenTabState extends Immutable.Record(defaultOpenTabStateProps) { }
 
 interface TabItemProps {
     saved: boolean;

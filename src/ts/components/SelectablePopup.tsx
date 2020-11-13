@@ -122,7 +122,7 @@ interface SelectablePopupProps {
     appState: TabManagerState;
     stateRef: StateRef<TabManagerState>;
     onSearchInput: (searchStr: string) => void;
-    filteredWindows: FilteredTabWindow[];
+    filteredWindows: FilteredTabWindow[] | undefined;
     searchStr: string | null;
     searchRE: RegExp | null;
     isPopout: boolean;
@@ -165,7 +165,8 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
     const [scrolledToTabId, setScrolledToTabId] = useState<number | null>(null);
     const expandAll = appState.expandAll;
 
-    const filteredWindowsLength = filteredWindows.length;
+    let filteredWindowsAssign = filteredWindows === undefined ? [] : filteredWindows;
+    const filteredWindowsLength = filteredWindowsAssign.length;
     log.trace('SelectablePopup: ', {
         selectedWindowIndex,
         selectedTabIndex,
@@ -181,20 +182,20 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
     // seems a little kludgey and likely to result in some extra
     // rendering, but we'll leave it:
     React.useEffect(() => {
-        if (selectedWindowIndex >= filteredWindows.length) {
-            if (filteredWindows.length === 0) {
+        if (selectedWindowIndex >= filteredWindowsAssign.length) {
+            if (filteredWindowsAssign.length === 0) {
                 log.debug('No filtered windows -- resetting selected indices');
                 setSelectedWindowIndex(0);
                 setSelectedTabIndex(-1);
             } else {
-                var lastWindow = filteredWindows[filteredWindows.length - 1];
-                setSelectedWindowIndex(filteredWindows.length - 1);
+                var lastWindow = filteredWindowsAssign[filteredWindowsAssign.length - 1];
+                setSelectedWindowIndex(filteredWindowsAssign.length - 1);
                 setSelectedTabIndex(
                     matchingTabsCount(searchStr, lastWindow) - 1
                 );
             }
         } else {
-            var selectedWindow = filteredWindows[selectedWindowIndex];
+            var selectedWindow = filteredWindowsAssign[selectedWindowIndex];
             const matchCount = matchingTabsCount(searchStr, selectedWindow);
             // We want to set selectedTabIndex to 0 when we start a search,
             // and back to -1 when we stop searching, but we also don't
@@ -255,7 +256,7 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
             focusedTabWindowRef.current != null &&
             bodyRef.current != null &&
             needScrollUpdate &&
-            filteredWindows.length > 0 &&
+            filteredWindowsAssign.length > 0 &&
             !appState.showRelNotes
         ) {
             const viewportTop = bodyRef.current.scrollTop;
@@ -293,7 +294,7 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
             }
             // Set the selected window and tab to the focused window and its currently active tab:
 
-            const selectedWindow = filteredWindows[0];
+            const selectedWindow = filteredWindowsAssign[0];
 
             const selectedTabs = matchingTabs(searchStr, selectedWindow);
 
@@ -320,10 +321,10 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
     });
 
     const handlePrevSelection = (byPage: boolean) => {
-        if (filteredWindows.length === 0) {
+        if (filteredWindowsAssign.length === 0) {
             return;
         }
-        const selectedWindow = filteredWindows[selectedWindowIndex];
+        const selectedWindow = filteredWindowsAssign[selectedWindowIndex];
 
         // const tabCount = (this.props.searchStr.length > 0) ? selectedWindow.itemMatches.count() : selectedWindow.tabWindow.tabItems.count()
 
@@ -338,9 +339,9 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
                 prevWindowIndex = selectedWindowIndex - 1;
             } else {
                 // ring style, move to last window:
-                prevWindowIndex = filteredWindows.length - 1;
+                prevWindowIndex = filteredWindowsAssign.length - 1;
             }
-            const prevWindow = filteredWindows[prevWindowIndex];
+            const prevWindow = filteredWindowsAssign[prevWindowIndex];
             const prevTabCount =
                 searchStr && searchStr.length > 0
                     ? prevWindow.itemMatches.count()
@@ -352,10 +353,10 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
     };
 
     const handleNextSelection = (byPage: boolean) => {
-        if (filteredWindows.length === 0) {
+        if (filteredWindowsAssign.length === 0) {
             return;
         }
-        const selectedWindow = filteredWindows[selectedWindowIndex];
+        const selectedWindow = filteredWindowsAssign[selectedWindowIndex];
         const tabCount =
             searchStr && searchStr.length > 0
                 ? selectedWindow.itemMatches.count()
@@ -367,7 +368,7 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
             setSelectedTabIndex(selectedTabIndex + 1);
         } else {
             // Already on last tab, try to advance to next window:
-            if (selectedWindowIndex + 1 < filteredWindows.length) {
+            if (selectedWindowIndex + 1 < filteredWindowsAssign.length) {
                 setSelectedWindowIndex(selectedWindowIndex + 1);
                 setSelectedTabIndex(0);
             } else {
@@ -381,12 +382,12 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
     const handleSelectionEnter = async (
         inputRef: MutableRefObject<HTMLInputElement | null>
     ) => {
-        if (filteredWindows.length === 0) {
+        if (filteredWindowsAssign.length === 0) {
             return;
         }
 
         const currentWindow = appState.getCurrentWindow();
-        const selectedWindow = filteredWindows[selectedWindowIndex];
+        const selectedWindow = filteredWindowsAssign[selectedWindowIndex];
         if (selectedTabIndex === -1) {
             if (currentWindow) {
                 // no specific tab, but still active / open window
@@ -414,10 +415,10 @@ const SelectablePopup: React.FunctionComponent<SelectablePopupProps> = ({
     };
 
     const handleSelectionExpandToggle = () => {
-        if (filteredWindows.length === 0) {
+        if (filteredWindowsAssign.length === 0) {
             return;
         }
-        const selectedWindow = filteredWindows[selectedWindowIndex];
+        const selectedWindow = filteredWindowsAssign[selectedWindowIndex];
         const tabWindow = selectedWindow.tabWindow;
         // technically the logical negation here isn't right, but it'll do.
         const expanded = tabWindow.isExpanded(expandAll);

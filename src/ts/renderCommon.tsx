@@ -4,7 +4,6 @@
 import * as log from 'loglevel';
 import * as utils from './utils';
 import * as React from 'react';
-import {} from 'react-dom/experimental';
 import * as ReactDOM from 'react-dom';
 import { PopupBaseProps, Popup } from './components/Popup';
 import TabManagerState from './tabManagerState';
@@ -93,9 +92,9 @@ export async function renderPopup(
         // And sync our window state, which may update the UI...
         if (doSync) {
             const syncStore = await actions.syncChromeWindows(storeRef);
-            log.debug('postLoadRender: window sync complete: ', syncStore);
+            log.info('postLoadRender: window sync complete: ', syncStore);
             // And set current focused window:
-            log.debug(
+            log.info(
                 'renderPopup: setting current window to ',
                 currentChromeWindow
             );

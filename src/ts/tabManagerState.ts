@@ -503,7 +503,9 @@ export default class TabManagerState extends Immutable.Record(
                 }
             ); // expand to a simple array of [TabWindow,TabItem] pairs:
 
-            const rawMatches = filteredWindows.map((ftw) => {
+            let filteredWindowsAssign = filteredWindows === undefined ? [] : filteredWindows;
+
+            const rawMatches = filteredWindowsAssign.map((ftw) => {
                 const { tabWindow: targetTabWindow, itemMatches } = ftw;
                 const rawMatchPairs = itemMatches.map(
                     (match) =>

@@ -269,10 +269,9 @@ const SearchBar: React.FunctionComponent<SearchBarProps> = ({
                             id="searchBox"
                             data-testid="searchBox"
                             placeholder="Search..."
-                            onChange={handleChange}
-                            onKeyDown={handleKeyDown}
                             title="Search Page Titles and URLs"
                         />
+                        <button onClick={handleChange}>Search</button>
                     </GrowRight>
                 </Centered>
                 {devLabel}

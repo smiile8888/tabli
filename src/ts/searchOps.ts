@@ -6,6 +6,8 @@ import map from 'lodash/map';
 import filter from 'lodash/filter';
 import * as Immutable from 'immutable';
 import * as TW from './tabWindow';
+import { string } from 'prop-types';
+import { result } from 'lodash';
 
 const _ = { map, filter };
 
@@ -43,7 +45,7 @@ const defaultFilteredTabItemProps: FilteredTabItemProps = {
  */
 export class FilteredTabItem extends Immutable.Record(
     defaultFilteredTabItemProps
-) {}
+) { }
 
 /**
  * Use a RegExp to match a particular TabItem
@@ -73,7 +75,6 @@ export function matchTabItem(
     if (urlMatches === null && titleMatches === null) {
         return null;
     }
-    // log.log('matchTabItem: ', urlMatches, titleMatches)
     return new FilteredTabItem({ tabItem, urlMatches, titleMatches });
 }
 
@@ -94,7 +95,7 @@ const defaultFilteredTabWindowProps: FilteredTabWindowProps = {
  */
 export class FilteredTabWindow extends Immutable.Record(
     defaultFilteredTabWindowProps
-) {}
+) { }
 
 /**
  * Match a TabWindow using a Regexp
@@ -130,26 +131,98 @@ export function matchTabWindow(
 export function filterTabWindows(
     tabWindows: Array<TW.TabWindow>,
     searchExp: SearchSpec,
-    options: SearchOpts = defaultSearchOpts
-): FilteredTabWindow[] {
-    var res: (FilteredTabWindow | null)[];
-    if (searchExp === null) {
-        res = _.map(tabWindows, tw => new FilteredTabWindow({ tabWindow: tw }));
+    options: SearchOpts = defaultSearchOpts,
+    isDev?: boolean,
+    callbackF?: any
+): FilteredTabWindow[] | undefined {
+    let res: (FilteredTabWindow | null)[];
+
+    if (isDev) {
+        if (searchExp === null || searchExp === '') {
+            res = _.map(tabWindows, tw => new FilteredTabWindow({ tabWindow: tw }));
+            res = _.filter(
+                res,
+                fw =>
+                    fw !== null &&
+                    fw.tabWindow !== null &&
+                    (!fw.tabWindow.open || fw.tabWindow.windowType === 'normal')
+            );
+            return res as FilteredTabWindow[];
+        }
+
+        // Run when searchExp
+
+        // Get URLs from all tabWindows
+        let allUrls: any = {};
+        _.map(tabWindows, tw => {
+            tw.tabItems.map(ti => {
+                allUrls[ti.url] = ti;
+            });
+        });
+
+        let requestBody = JSON.stringify({
+            "domains": Object.keys(allUrls),
+            "query": searchExp
+        });
+
+        var xhttp = new XMLHttpRequest();
+        xhttp.open("POST", "http://localhost:3337/domain", true);
+        xhttp.setRequestHeader('Content-Type', 'application/json');
+        xhttp.setRequestHeader('Access-Control-Allow-Headers', '*/*');
+
+        xhttp.onreadystatechange = function () {
+            if (this.readyState == 4 && this.status == 200) {
+                const sortedListOfLinks = JSON.parse(this.response);
+                let results: Array<FilteredTabWindow> = _.map(tabWindows, tw => {
+                    let itemMatches2: Array<FilteredTabItem> = [];
+                    _.map(sortedListOfLinks, (result: string | number) => {
+                        tw.tabItems.map(ti => {
+                            if (ti.url == result) {
+                                itemMatches2.push(new FilteredTabItem({ tabItem: ti }))
+                            }
+                        })
+                    })
+                    return new FilteredTabWindow({ tabWindow: tw, itemMatches: Immutable.List(itemMatches2) })
+                })
+
+                const filteredResults = results.filter(
+                    (fw: { tabWindow: { open: any; windowType: string; } | null; } | null) =>
+                        fw !== null &&
+                        fw.tabWindow !== null &&
+                        (!fw.tabWindow.open || fw.tabWindow.windowType === 'normal')
+                );
+                // Uncomment for debug
+                // console.log('results after filter', filteredResults);
+
+                // Call callback function to set new state of filteredWindows
+                callbackF(filteredResults as FilteredTabWindow[]);
+            }
+        };
+
+        xhttp.send(requestBody);
     } else {
-        const mappedWindows = _.map(tabWindows, tw =>
-            matchTabWindow(tw, searchExp, options)
+        // This is original code
+        if (searchExp === null || searchExp === '') {
+            res = _.map(tabWindows, tw => new FilteredTabWindow({ tabWindow: tw }));
+        } else {
+            const mappedWindows = _.map(tabWindows, tw =>
+                matchTabWindow(tw, searchExp, options)
+            );
+
+            res = _.filter(mappedWindows, fw => fw !== null);
+        }
+
+        res = _.filter(
+            res,
+            fw =>
+                fw !== null &&
+                fw.tabWindow !== null &&
+                (!fw.tabWindow.open || fw.tabWindow.windowType === 'normal')
         );
-        res = _.filter(mappedWindows, fw => fw !== null);
+
+        // Uncomment for debug
+        // console.log(res);
+
+        return res as FilteredTabWindow[];
     }
-
-    // And restrict to windows with "normal" windowType:
-    res = _.filter(
-        res,
-        fw =>
-            fw !== null &&
-            fw.tabWindow !== null &&
-            (!fw.tabWindow.open || fw.tabWindow.windowType === 'normal')
-    );
-
-    return res as FilteredTabWindow[];
 }

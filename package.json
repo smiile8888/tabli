@@ -11,14 +11,15 @@
         "@types/react": "^16.9.27",
         "@types/react-beautiful-dnd": "^12.1.2",
         "@types/react-dom": "^16.9.5",
+        "@types/request": "^2.48.5",
         "babel-plugin-flow-to-typescript": "^0.6.0",
         "chrome-promise": "^3.0.5",
         "emotion": "^10.0.27",
         "escape-string-regexp": "^2.0.0",
         "events": "^3.1.0",
         "immutable": "^4.0.0-rc.12",
-        "jquery": "^3.4.1",
-        "lodash": "^4.17.15",
+        "jquery": "^3.5.1",
+        "lodash": "^4.17.20",
         "loglevel": "^1.6.7",
         "object-assign": "^4.1.1",
         "oneref": "^0.7.0",
@@ -117,7 +118,8 @@
             "performance"
         ],
         "ignore": [
-            "webpack.config.js"
+            "webpack.config.js",
+            "backend/"
         ],
         "parser": "babel-eslint",
         "plugins": [

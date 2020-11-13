@@ -17,6 +17,7 @@ import SelectablePopup from './SelectablePopup';
 import { FilteredTabWindow } from '../searchOps';
 import ModalActions from './modalActions';
 import { setRootFontSize } from '../renderUtils';
+import { sort } from 'semver';
 
 const _ = { debounce };
 
@@ -71,7 +72,13 @@ export const Popup: React.FunctionComponent<PopupProps> = ({
     const [searchStr, setSearchStr] = useState('');
     const [searchRE, setSearchRE] = useState<RegExp | null>(null);
 
+    // Set the state for filteredWindows
+    const [filteredWindows, setFilteredWindows] = useState<FilteredTabWindow[] | undefined>((): Array<FilteredTabWindow> | undefined => {
+        return searchOps.filterTabWindows(sortedWindows, '');
+    });
+
     const handleSearchInput = (rawSearchStr: string) => {
+        // setFilteredWindows([]);
         const nextSearchStr = rawSearchStr.trim();
 
         let nextSearchRE = null;
@@ -80,9 +87,26 @@ export const Popup: React.FunctionComponent<PopupProps> = ({
         }
         setSearchStr(nextSearchStr);
         setSearchRE(nextSearchRE);
+        // set state of filteredWindows whenever the handle gets called
+        updateFilteredWindows(nextSearchStr);
     };
 
-    const filteredWindows = searchOps.filterTabWindows(sortedWindows, searchRE);
+    // Original call to get filteredWindows
+    // let filteredWindows = searchOps.filterTabWindows(sortedWindows, searchExp);
+
+    // Callback function to setFilteredWindows when the sorted list of links returned
+    let getPrediction = (returnedData: any) => {
+        // Uncomment for debug
+        // console.log(returnedData);
+        setFilteredWindows(returnedData);
+    }
+
+    // Uncomment for debug
+    // console.log('filteredWindows', filteredWindows);
+
+    const updateFilteredWindows = (str: string) => {
+        searchOps.filterTabWindows(sortedWindows, str, undefined, true, getPrediction)
+    }
 
     const openSaveModal = useCallback(
         (tabWindow: TabWindow) => {

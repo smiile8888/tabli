@@ -19,7 +19,7 @@ if (!isNode) {
 }
 
 interface TabWindowListProps {
-    filteredWindows: FilteredTabWindow[];
+    filteredWindows: FilteredTabWindow[] | undefined;
     selectedWindowIndex: number;
     selectedTabIndex: number;
     searchStr: string | null;
@@ -65,8 +65,10 @@ const TabWindowList: React.FC<TabWindowListProps> = ({
     var openWindows: JSX.Element[] = [];
     var savedWindows: JSX.Element[] = [];
 
-    for (var i = 0; i < filteredWindows.length; i++) {
-        var filteredTabWindow = filteredWindows[i];
+    let filteredWindowsAssign = filteredWindows === undefined ? [] : filteredWindows;
+
+    for (var i = 0; i < filteredWindowsAssign.length; i++) {
+        var filteredTabWindow = filteredWindowsAssign[i];
         var tabWindow = filteredTabWindow.tabWindow;
 
         var key = tabWindow.key;
