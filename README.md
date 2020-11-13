@@ -1,13 +1,36 @@
-# Tabli - A Chrome Tab Manager
+# TabHeart
+Fast Chrome extension tab filtering and search using BlobHeart
 
-Tabli is a simple, powerful tab manager for Google Chrome.
+## Install
 
-![Screenshot of Tabli Popup](screenshots/tabli-screenshot.png "Tabli screenshot")
+### Extension
+1. Node and npm
+2. `npm install`
 
-The popup can be used to quickly scroll through all open windows and tabs and switch to or close any open window or tab with a single click.  Tabli also supports saving and restoring sets of tabs.
+### Backend
+1. Python3
+2. `pip3 install -r backend/requirements.txt`
 
-You can learn more about Tabli by reading the [Tabli Intro](http://antonycourtney.github.io/tabli/) or [Usage Guide](http://antonycourtney.github.io/tabli/tabli-usage.html).
+## Get Start
 
-## Feedback
+### Extension
+1. `npm run build-dev`
+2. `npm run watch`
 
-I welcome candid feedback, suggestions and bug reports. Please let me know your experience with Tabli!
+### Test extension
+1. Go to Chrome and go to `chrome://extensions`
+2. Click `Load unpacked`
+3. Select the `build/` directory
+
+### Backend
+1. `python3 backend/app.py`
+
+### To push changes
+**WARNING:** There is a test in the original code, to avoid it using
+```
+    git commit -n (or --no-verify) -m "your_message"
+```
+
+## Disclaimer
+
+The original codebase is from [Tabli](http://antonycourtney.github.io/tabli/). Thanks Antony!
